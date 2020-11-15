@@ -7,16 +7,18 @@ namespace XlsxToSql.Services
 {
     public class XlsxImportService
     {
-        public void ImportSpreadsheet(string filepath)
+        public TableDto ImportSpreadsheetStruct(string filepath)
         {
-            var columns = new List<ColumnDto>();
+            var table = new TableDto();
 
-            using(ExcelPackage package = new ExcelPackage(new System.IO.FileInfo(filepath)))
+            using (ExcelPackage package = new ExcelPackage(new System.IO.FileInfo(filepath)))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
 
+                table.name = worksheet.Name;
+
                 // Get column names
-                for( int i = worksheet.Dimension.Start.Column; i <= worksheet.Dimension.End.Column; i++)
+                for (int i = worksheet.Dimension.Start.Column; i <= worksheet.Dimension.End.Column; i++)
                 {
                     string key = worksheet.Cells[1, i].Value == null ? "" : worksheet.Cells[1, i].Value.ToString();
 
@@ -26,9 +28,11 @@ namespace XlsxToSql.Services
 
                         //columns.Add(key, 0);
 
-                        columns.Add(new ColumnDto()
+                        table.Columns.Add(new ColumnDto()
                         {
-
+                            name = key,
+                            size = 255,
+                            data_type = "varchar"
                         });
                     }
                 }
@@ -46,7 +50,7 @@ namespace XlsxToSql.Services
 
 
 
-                    System.Console.WriteLine(columns.ToString());
+                return table;
             }
         }
     }
